@@ -25,7 +25,6 @@ class DivisorLinhasCommand(sublime_plugin.TextCommand):
 		return lines
 
 	def run(self, edit, qte_objetos):		
-		#qte_objetos = 1000
 		qte_objetos = int(qte_objetos)
 		# Para evitar numeros negativos e zero no denominador
 		if qte_objetos <=0:
@@ -33,19 +32,26 @@ class DivisorLinhasCommand(sublime_plugin.TextCommand):
 
 		# Quantidade de linhas
 		qte_linhas = ceil(self.totallinhas()/qte_objetos)
+
 		# Obter todos os dados selecionados em uma Lista
-		saida_total=self.view.substr(sublime.Region(0,self.view.size())).split('\n')
-		# Loop para separar
+		lista=[]
+		# Obtendo cada regiao da selecao
+		for regiao in self.view.sel():
+			# Por algum motivo ele coloca tudo em uma coluna na List (uma Região)
+			lista.append(self.view.substr(self.view.line(regiao)))
+		# Transformando para uma lista o único elemento
+		saida_total=lista[0].split('\n')
+
+		# Loop para separar os objetos em linhas
 		i=0
 		txt=''
 		# Lembrando que o range não pega o ultimo valor por isso o +1
 		for j in range(1,qte_linhas+1):
-			#print(saida_total[i:qte_objetos*j])
-			#print(';'.join(saida_total[i:qte_objetos*j]))
 			txt+=';'.join(saida_total[i:qte_objetos*j]) + '\n'
 			i=qte_objetos*j
+		
 		# Substituindo toda a região com o texto
-		self.view.replace(edit, sublime.Region(0,self.view.size()), txt)
+		self.view.replace(edit, self.view.line(regiao), txt)
 		# Limpando a selecao
 		self.view.sel().clear()
 
